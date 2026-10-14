@@ -2907,7 +2907,7 @@ function showScreen(name) {
     s.innerHTML = `<h2>Report an issue</h2><p>Recorded against the nearest scheduled address with time, GPS position and a dash-camera still. The office sees it straight away.</p>
       <div class="issues">${types.map(t => `<button type="button" data-it="${esc(t)}" aria-pressed="false">${esc(t)}</button>`).join('')}</div>
       <label class="cab-in" for="is-note">Note (optional)<input id="is-note" placeholder="e.g. soft plastics in yellow bin"></label>
-      <div class="cab-row"><button type="button" class="cab-btn go" id="is-go" disabled>Save issue</button><button type="button" class="cab-btn" data-back>Cancel</button></div>
+      <div class="cab-row"><button type="button" class="cab-btn go" id="is-go" disabled>Send to base</button><button type="button" class="cab-btn" data-back>Cancel</button></div>
       ${voiceSectionHTML(v)}`;
     voiceWire(v, s);
     $$('[data-it]', s).forEach(b => b.onclick = () => { CAB.form.type = b.dataset.it; $$('[data-it]', s).forEach(x => x.setAttribute('aria-pressed', String(x === b))); $('#is-go', s).disabled = false; });
@@ -2915,7 +2915,8 @@ function showScreen(name) {
       const p = nearestOwned(v); const is = driverIssue(v, p, CAB.form.type, ($('#is-note', s).value || '') + ' · photo from cab camera', 'driver');
       if (CAB.form.type === 'Illegal dumping' || CAB.form.type === 'Hazard / blocked access' || CAB.form.type === 'Bin not out — resident waiting')
         raiseAlert({ type: 'info', sev: 'info', veh: v, x: v.x, y: v.y, p, title: `${CAB.form.type} reported by ${v.id}`, text: `${p >= 0 ? addrFull(p) : v.curStreet}. ${is.note}` });
-      hideScreen(); cabToast({ title: 'Issue saved', text: `${is.type}${p >= 0 ? ' at ' + addr(p) : ''} — sent to the office` }); renderCab();
+      hideScreen(); cabToast({ title: 'Sent to base', text: `${is.type}${p >= 0 ? ' at ' + addr(p) : ''} — opening CityBrowser` }); renderCab();
+      window.open('https://jisook-matter.github.io/CityBrowser-AI-Asset-Management-Illegal-Dump-Tracking/', '_blank', 'noopener');
     };
   } else if (name === 'messages') {
     s.innerHTML = `<h2>Messages and flags</h2><div>${v.inbox.slice().reverse().map(m => `<div class="chk"><span><b>${esc(m.title)}</b><br><span style="color:var(--c-fg-2)">${esc(m.text)}</span></span><span>${m.ack ? `<span class="mono" style="color:var(--c-go)">ACK ${fmtT(m.ack)}</span>` : `<button type="button" class="cab-btn" data-ack="${esc(String(m.id))}">Acknowledge</button>`}</span></div>`).join('') || '<p>No messages today.</p>'}</div>${back}`;
